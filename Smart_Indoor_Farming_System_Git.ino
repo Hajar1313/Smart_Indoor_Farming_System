@@ -13,8 +13,17 @@
 #define PUMP_PIN           D11
 #define LED_PIN            D12 
 
+
 const unsigned long MS_IN_HOUR = 3600000UL;
 const unsigned long ONE_DAY_MS = 24UL * MS_IN_HOUR;
+unsigned long lightOnStartTime = 0;
+unsigned long totalLightOnTimeToday = 0;
+unsigned long lastUpdateTime = 0;
+unsigned long dayStartTime = 0;
+unsigned long dailyLightDuration = dailyLightHours * MS_IN_HOUR;
+
+bool isLightOn = false;
+bool isManualMode = false;
 
 Preferences preferences;
 String savedSSID, savedPass, savedBlynkAuth;
@@ -22,16 +31,8 @@ WiFiManager wm;
 WiFiManagerParameter custom_blynk("auth", "Blynk Auth Token", "", 40);
 BlynkTimer timer;
 
-unsigned long lightOnStartTime = 0;
-unsigned long totalLightOnTimeToday = 0;
-unsigned long lastUpdateTime = 0;
-unsigned long dayStartTime = 0;
-bool isLightOn = false;
-bool isManualMode = false;
-
 float moistureThreshold;
 float dailyLightHours = 12.0;
-unsigned long dailyLightDuration = dailyLightHours * MS_IN_HOUR;
 
 void updateDailyLightDuration() {
   dailyLightDuration = (unsigned long)(dailyLightHours * MS_IN_HOUR);
@@ -89,18 +90,18 @@ void sendSensorData() {
   Serial.print(" | LightTime (s): "); Serial.println(totalLightOnTimeToday / 1000);
 }
 
-BLYNK_WRITE(V10) {
+BLYNK_WRITE(V10) { // Current Moisture Threshold
   moistureThreshold = param.asFloat();
   Serial.print("Moisture Threshold: "); Serial.println(moistureThreshold);
 }
 
-BLYNK_WRITE(V11) {
+BLYNK_WRITE(V11) { // Current Hours Of Light A Day
   dailyLightHours = param.asFloat();
   updateDailyLightDuration();
   Serial.print("Light Hours: "); Serial.println(dailyLightHours);
 }
 
-BLYNK_WRITE(V5) {
+BLYNK_WRITE(V5) { // Manually Added Moisture Threshold
   if (isManualMode) {
     String s = param.asStr();
     moistureThreshold = s.toFloat();
@@ -112,12 +113,12 @@ BLYNK_WRITE(V5) {
   }
 }
 
-BLYNK_WRITE(V6) {
+BLYNK_WRITE(V6) { // Manually Added Hours Of Light A day
   if (isManualMode) {
     String s = param.asStr();
     dailyLightHours = s.toFloat();
     updateDailyLightDuration();
-    Serial.print("Manual Light Threshold set to: ");
+    Serial.print("Manual Hours Of Light A day set to: ");
     Serial.println(dailyLightHours);
     Blynk.virtualWrite(V11, dailyLightHours);
   } else {
@@ -125,7 +126,7 @@ BLYNK_WRITE(V6) {
   }
 }
 
-struct PlantSettings {
+struct PlantSettings { // Struct For Plant Selection Menu
   const char* name;
   float moistureThreshold;
   float lightHours;
@@ -139,7 +140,7 @@ PlantSettings plants[] = {
   {"tomato", 65, 16}
 };
 
-BLYNK_WRITE(V4) {
+BLYNK_WRITE(V4) { // Plant Selection Menu
   int plantIndex = param.asInt();
   if (plantIndex >= 0 && plantIndex < 5) {
     isManualMode = false;
