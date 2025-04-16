@@ -18,4 +18,3 @@ The data gathered is sent every 10 seconds to blynk.
 
 When a plant is chosen in blynk, the set numbers update automatically.
 
-check the pictures for the set up.
