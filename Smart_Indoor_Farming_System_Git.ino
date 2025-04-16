@@ -33,9 +33,6 @@ WiFiManager wm;
 WiFiManagerParameter custom_blynk("auth", "Blynk Auth Token", "", 40);
 BlynkTimer timer;
 
-esp_task_wdt_init(10, true);
-esp_task_wdt_add(NULL); 
-
 float moistureThreshold;
 float dailyLightHours = 12.0;
 
@@ -202,6 +199,10 @@ BLYNK_WRITE(V13) {  // Reset Light & Moisture Thresholds
 void setup() {
   Serial.begin(115200);
   delay(1000);
+
+  esp_task_wdt_init(15, true);
+  esp_task_wdt_add(NULL); 
+
 
   pinMode(PUMP_PIN, OUTPUT);   digitalWrite(PUMP_PIN, HIGH);
   pinMode(LED_PIN, OUTPUT);    digitalWrite(LED_PIN, LOW);
