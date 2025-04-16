@@ -7,6 +7,8 @@
 #include <Preferences.h>
 #include <BlynkSimpleEsp32.h>
 #include <EEPROM.h>
+#include "esp_task_wdt.h"
+
 
 #define LDR_PIN            D2
 #define SOIL_MOISTURE_PIN  A1
@@ -30,6 +32,9 @@ String savedSSID, savedPass, savedBlynkAuth;
 WiFiManager wm;
 WiFiManagerParameter custom_blynk("auth", "Blynk Auth Token", "", 40);
 BlynkTimer timer;
+
+esp_task_wdt_init(10, true);
+esp_task_wdt_add(NULL); 
 
 float moistureThreshold;
 float dailyLightHours = 12.0;
@@ -250,4 +255,5 @@ void setup() {
 void loop() {
   Blynk.run();
   timer.run();
+  esp_task_wdt_reset();
 }
