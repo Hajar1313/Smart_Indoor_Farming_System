@@ -12,8 +12,8 @@
 
 #define LDR_PIN            D2
 #define SOIL_MOISTURE_PIN  A1
-#define PUMP_PIN           D11
-#define LED_PIN            D12 
+#define PUMP_PIN           D8
+#define LED_PIN            D9
 
 
 const unsigned long MS_IN_HOUR = 3600000UL;
